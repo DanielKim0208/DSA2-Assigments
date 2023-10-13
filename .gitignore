@@ -1,0 +1,6 @@
+/.vscode
+/heap.cpp
+/heap.h
+/heap.o
+/makefile
+/useHeap.cpp
