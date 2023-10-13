@@ -1,3 +1,5 @@
+//Header file for heaps, defining public and private functions
+
 #ifndef _HEAP_H
 #define _HEAP_H
 
@@ -23,35 +25,31 @@ public:
   
     // Remove top item from heap
     int deleteMin(std::string *id, int *key);
-    
-    // For testing purposes
-    int test();
 
  
 private:
+
+    
+
  
     class node { // An inner class within heap
     public:
         std::string id; // The id of this node
         int key; // The key of this node
         void *pData; // A pointer to the actual data
-        bool operator<(node n2) const { return key < n2.key; }
     };
- 
-    int filled = 0;
-    int capacity = 0;
+
+    int capacity;
+    int size;
     std::vector<node> data; // The actual binary heap
     hashTable mapping; // maps ids to node pointers
 
-    // Move a key higher up in the tree, to its correct location.
-    int percUp(int posCur);
-  
-    // Move a key down the tree, to its correct location
-    int percDown(int posCur);
-    
-    // Get position of given node (needs clarification)
-    int getPos(node *pn);
+    void percolateUp(int posCur);
 
+    void percolateDown(int posCur);
+
+    int getPos(node *pn);
+    
 };
 
-#endif //_HEAP_H
+#endif
