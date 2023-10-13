@@ -1,4 +1,3 @@
-// 
 // This program allows the user to manipulate a binary heap.
 // The program only inserts string ids with with associated keys
 // into the heap. The heap class, however, is capable of storing
