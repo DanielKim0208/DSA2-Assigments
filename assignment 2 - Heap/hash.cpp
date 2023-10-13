@@ -68,17 +68,50 @@ bool hashTable::contains(const std::string &key){
   // If an optional pointer to a bool is provided,
   // set the bool to true if the key is in the hash table,
   // and set the bool to false otherwise.
-  void *getPointer(const std::string &key, bool *b = nullptr);
+void *hashTable::getPointer(const std::string &key, bool *b)
+{
+    int pos = findPos(key);
+
+    if (b != nullptr) {
+        *b = (pos != -1);
+    }
+
+    if (pos == -1) {
+        return nullptr;
+    }
+
+    else {
+        return data[pos].pv;
+    }
+}
+
 
   // Set the pointer associated with the specified key.
   // Returns 0 on success,
   // 1 if the key does not exist in the hash table.
-  int setPointer(const std::string &key, void *pv);
+  int hashTable::setPointer(const std::string & key, void * pv) {
+  if (contains(key) == false) {
+    return 1;
+  } else {
+    data[findPos(key)].pv = pv;
+    return 0;
+  }
+};
 
   // Delete the item with the specified key.
   // Returns true on success,
   // false if the specified key is not in the hash table.
-  bool remove(const std::string &key);
+bool hashTable::remove(const std::string &key)
+{
+    int pos = findPos(key);
+    if (pos != -1)
+    {
+        data[pos].isDeleted = true;
+        return true;
+    }
+    return false;
+}
+
 
 //--------------------END OF ADDED FOR 2ND ASSIGNMENT---------------------------------------///
 
