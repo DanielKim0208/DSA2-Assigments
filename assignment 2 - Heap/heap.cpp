@@ -103,12 +103,20 @@ using namespace std;
     if(current_size == 0){ 
         return 1;
     }
+
+    //Since I am using a min-heap tree, I need to delete the highest node(first) and percolate down. 
     else{
-
-
-        return 0; 
+        if (pId != nullptr) {
+      * pId = data[1].id;
     }
-
+    if (pKey != nullptr) {
+      * pKey = data[1].key;
+    }
+    if (ppData != nullptr){
+    *(static_cast<void **> (ppData)) = data[1].pData;
+    }
+    return 0; 
+  }
   }
 
   //
@@ -122,7 +130,10 @@ using namespace std;
   //   0 on success
   //   1 if a node with the given id does not exist
   //
-  int remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr);
+  int heap::remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr){
+    if ( )
+
+  }
 
 
  
@@ -148,7 +159,10 @@ private:
 
     }
 
-    int getPos(node *pn){
-
+    int hash::getPos(node *pn){
+     int pos = pn - &data[0];
+     return pos;
     }
+
+
     
