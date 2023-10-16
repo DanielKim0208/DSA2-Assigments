@@ -1,4 +1,7 @@
-//Daniel Kim
+//---IMPORTANT------//
+//Daniel Kim -assignment 2 
+//I have gotten nontrivial help from Taseen Jahan
+//Where I have gotten help is marked with comment
 
 //a constructor that accepts an integer representing the capacity of the binary heap; 
 //a public member function, insert, used to insert a new item into the heap; a public member function
@@ -20,19 +23,16 @@
 // but that is up to you (I'll discuss how to do that in class). 
 //Note that since items get removed from the heap, but only lazily deleted from the hash table, it is still possible that a rehash of the hash table will be necessary.
 
-
-//
-// heap - The constructor allocates space for the nodes of the heap
-// and the mapping (hash table) based on the specified capacity
-//
-
 #include "heap.h"
 #include <iostream>
 #include <string>
 using namespace std;
 
 
-
+//
+// heap - The constructor allocates space for the nodes of the heap
+// and the mapping (hash table) based on the specified capacity
+//
 //MAPPING = HASHTABLE
   heap::heap(int capacity):mapping(capacity*2){
         data.resize(capacity+1);
@@ -82,6 +82,16 @@ using namespace std;
   //   1 if a node with the given id does not exist
   //
   int heap::setKey(const std::string &id, int key){
+    // Get the node's position based on the 'id' using 'getPos'.
+    int loc = getPos(static_cast<node>(mapping.getPointer(id)));
+    if(mapping.contains(id) == false){ 
+      return 1;
+    }
+    else{ 
+      data[loc].key = key; 
+      percolateUp(loc); 
+      percolateDown(loc); 
+    }
 
   }
 
@@ -98,6 +108,7 @@ using namespace std;
   //   0 on success
   //   1 if the heap is empty
   //
+  // Textbook fig 6.12 referenced
   int heap::deleteMin(std::string *pId, int *pKey, void *ppData){
 
     if(current_size == 0){ 
@@ -122,47 +133,82 @@ using namespace std;
   //
   // remove - delete the node with the specified id from the binary heap
   //
-  // If pKey is supplied, write to that address the key of the node
-  // being deleted. If ppData is supplied, write to that address the
-  // associated void pointer.
+  // If pKey is supplied, write to that address the key of the node being deleted. 
+  // If ppData is supplied, write to that address the associated void pointer.
   //
   // Returns:
   //   0 on success
   //   1 if a node with the given id does not exist
   //
   int heap::remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr){
-    if ( )
+     // Get the node's position based on the 'id' using 'getPos'.
+    int pos = getPos((node *)mapping.getPointer(id));
+    if (mapping.contains(id) == false){ 
+      return 1; 
+    }
+    //pKey - ppData handling 
+    if(pKey != nullptr){ *pKey = data[pos].key;} 
+    if(ppData != nullptr){*(static_cast < void ** > (ppData)) = data[pos].pData;}
+    
+    //I have gotten nontrivial help from Taseen Jahan below : 
+    //Delete 
+    mapping.remove(data[pos].id); 
+    data[pos] = data[(current_size-1)]; 
 
+
+    int oldKey, newKey; 
+    oldKey = data[pos].key; 
+    newKey = data[current_size].key; 
+    return 0;    
+    }
+
+
+///////------------Private functions----------//
+
+//Percolate up function 
+//I am using min heap tree
+void heap::percolateUp(int posCur) {
+  node temp = data[posCur];
+  data[0].key = -1;
+  data[0].id = "";
+  data[0].pData = nullptr;
+
+  while (temp.key < data[posCur / 2].key) {
+    data[posCur] = data[posCur / 2];
+    mapping.setPointer(data[posCur].id, &data[posCur]);
+    posCur /= 2;
   }
 
+  data[posCur] = temp;
+  mapping.setPointer(data[posCur].id, &data[posCur]);
+}
 
- 
-private:
- 
-    class node { // An inner class within heap
-    public:
-        std::string id; // The id of this node
-        int key; // The key of this node
-        void *pData; // A pointer to the actual data
-    };
 
-    int capacity;
-    int size;
-    std::vector<node> data; // The actual binary heap
-    hashTable mapping; // maps ids to node pointers
+void heap::percolateDown(int posCur){
+  
+  //Storing the new node information 
+  data[0] = data[posCur]; //Since we're not going to be using the 0th
 
-    void percolateUp(int posCur){
+//while children smaller than the parent
+  while(data[posCur].key > data[(posCur/2)].key){ 
+    data[posCur] = data[(posCur/2)]; 
+    mapping.setPointer(data[posCur].id, &data[posCur]);    
+    posCur /= 2;    
+    //swap! 
+  }
 
-    }
+  data[posCur] = data[0]; 
+  mapping.setPointer(data[posCur].id, &data[posCur]);
+  data[0].key = -1; //This assumes no given key will be negative 
+  data[0].id = ""; 
+  data[0].pData = nullptr; 
 
-    void percolateDown(int posCur){
+}
 
-    }
-
-    int hash::getPos(node *pn){
-     int pos = pn - &data[0];
-     return pos;
-    }
+int heap::getPos(heap::node * pn) {
+  int pos = pn - &data[0];
+  return pos;
+};
 
 
     
