@@ -66,10 +66,11 @@ using namespace std;
         data[new_position].key = key;
         data[new_position].pData = pv;
         percolateUp(new_position);
+        current_size = new_position; 
+        new_position = 0;
         return 0;
     }
 }
-
 
   //
   // setKey - set the key of the specified node to the specified value
@@ -83,14 +84,14 @@ using namespace std;
   //
   int heap::setKey(const std::string &id, int key){
     // Get the node's position based on the 'id' using 'getPos'.
-    int loc = getPos(static_cast<node>(mapping.getPointer(id)));
+      int pos = getPos((node *)mapping.getPointer(id));
     if(mapping.contains(id) == false){ 
-      return 1;
+      return 1; 
     }
     else{ 
-      data[loc].key = key; 
-      percolateUp(loc); 
-      percolateDown(loc); 
+      data[pos].key = key; 
+      percolateUp(pos); 
+      percolateDown(pos); 
     }
 
   }
@@ -110,7 +111,7 @@ using namespace std;
   //
   // Textbook fig 6.12 referenced
   int heap::deleteMin(std::string *pId, int *pKey, void *ppData){
-
+    //error handling 
     if(current_size == 0){ 
         return 1;
     }
@@ -141,11 +142,13 @@ using namespace std;
   //   1 if a node with the given id does not exist
   //
   int heap::remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr){
-     // Get the node's position based on the 'id' using 'getPos'.
+    //error handling 
+    // Get the node's position based on the 'id' using 'getPos'.
     int pos = getPos((node *)mapping.getPointer(id));
     if (mapping.contains(id) == false){ 
       return 1; 
     }
+
     //pKey - ppData handling 
     if(pKey != nullptr){ *pKey = data[pos].key;} 
     if(ppData != nullptr){*(static_cast < void ** > (ppData)) = data[pos].pData;}
@@ -154,8 +157,6 @@ using namespace std;
     //Delete 
     mapping.remove(data[pos].id); 
     data[pos] = data[(current_size-1)]; 
-
-
     int oldKey, newKey; 
     oldKey = data[pos].key; 
     newKey = data[current_size].key; 
@@ -164,23 +165,30 @@ using namespace std;
 
 
 ///////------------Private functions----------//
+///////------standard percs&getPos() given----//
 
 //Percolate up function 
 //I am using min heap tree
 void heap::percolateUp(int posCur) {
-  node temp = data[posCur];
-  data[0].key = -1;
-  data[0].id = "";
-  data[0].pData = nullptr;
+  //Storing the new node information 
+  data[0] = data[posCur]; //Since we're not going to be using the 0th
 
-  while (temp.key < data[posCur / 2].key) {
-    data[posCur] = data[posCur / 2];
-    mapping.setPointer(data[posCur].id, &data[posCur]);
-    posCur /= 2;
+//while children smaller than the parent
+  while(data[posCur].key < data[(posCur/2)].key){ 
+    data[posCur] = data[(posCur/2)]; 
+
+    //FIGURE OUT HASH.CPP SETPOINTER
+    mapping.setPointer(data[posCur].id, &data[posCur]);    
+  
+    posCur /= 2;    
+    //swap! 
   }
 
-  data[posCur] = temp;
+  data[posCur] = data[0]; 
   mapping.setPointer(data[posCur].id, &data[posCur]);
+  data[0].key = -1; //This assumes no given key will be negative 
+  data[0].id = ""; 
+  data[0].pData = nullptr; 
 }
 
 

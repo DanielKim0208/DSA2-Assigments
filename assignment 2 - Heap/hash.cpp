@@ -63,28 +63,23 @@ bool hashTable::contains(const std::string &key){
 
 //--------------------ADDED FOR 2ND ASSIGNMENT--------------------------------------------///
 
-  // Get the pointer associated with the specified key.
+   // Get the pointer associated with the specified key.
   // If the key does not exist in the hash table, return nullptr.
   // If an optional pointer to a bool is provided,
   // set the bool to true if the key is in the hash table,
   // and set the bool to false otherwise.
-void *hashTable::getPointer(const std::string &key, bool *b)
+void *hashTable::getPointer(const std::string &key, bool *b = nullptr)
 {
     int pos = findPos(key);
-
-    if (b != nullptr) {
-        *b = (pos != -1);
-    }
-
-    if (pos == -1) {
+    if(pos == -1){ 
         return nullptr;
+        *b = false;
     }
-
-    else {
-        return data[pos].pv;
+    else{ 
+        *b = true;
+        return data[findPos(key)].pv;
     }
 }
-
 
   // Set the pointer associated with the specified key.
   // Returns 0 on success,
