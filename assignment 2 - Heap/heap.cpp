@@ -95,6 +95,7 @@ using namespace std;
       data[pos].key = key; 
       percolateUp(pos); 
       percolateDown(pos); 
+      return 0;
     }
   }
 
@@ -113,16 +114,18 @@ using namespace std;
   //
   // Textbook fig 6.12 referenced
 int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
-    if (current_size == 0) {return 1;}
-    if (pId != nullptr) {*pId = data[1].id;}
-    if (pKey != nullptr) {*pKey = data[1].key;}
-    if (ppData != nullptr) {*(static_cast<void **>(ppData)) = data[1].pData;}
-    data[1] = data[current_size];
-    current_size--;
-    mapping.remove(data[current_size + 1].id);
-    percolateDown(1);
-    
-    return 0;
+if (current_size == 0) {return 1;}
+if (pId != nullptr) {*pId = data[1].id;}
+if (pKey != nullptr) {*pKey = data[1].key;}
+if (ppData != nullptr) {*(static_cast<void **>(ppData)) = data[1].pData;}
+
+mapping.remove(data[1].id);
+data[1] = data[current_size];
+mapping.setPointer(data[1].id, &data[1]);
+data[current_size] = heap::node();
+current_size--;
+percolateDown(1);
+return 0;
 }
 
 
@@ -162,54 +165,49 @@ int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
 ///////------------Private functions----------//
 ///////------standard percs&getPos() given----//
 
+
 //Percolate up function 
 //I am using min heap tree
 void heap::percolateUp(int posCur) {
-  //Storing the new node information 
-  data[0] = data[posCur]; //Since we're not going to be using the 0th
 
-//while children smaller than the parent
-  while(data[posCur].key < data[(posCur/2)].key){ 
-    data[posCur] = data[(posCur/2)]; 
+  //using data[0] as temporary storage
+  while (data[posCur].key < data[posCur / 2].key && posCur > 1) {
+    
+    //swapping
+    data[0] = data[posCur];
+    data[posCur] = data[posCur / 2];
+    data[posCur / 2] = data[0];
 
-    //FIGURE OUT HASH.CPP SETPOINTER
-    mapping.setPointer(data[posCur].id, &data[posCur]);    
-  
-    posCur /= 2;    
-    //swap! 
+    mapping.setPointer(data[posCur].id, &data[posCur]);
+    mapping.setPointer(data[posCur / 2].id, &data[posCur / 2]);
+    posCur = posCur / 2;
   }
 
-  data[posCur] = data[0]; 
-  mapping.setPointer(data[posCur].id, &data[posCur]);
-  data[0].key = -1; //This assumes no given key will be negative 
-  data[0].id = ""; 
-  data[0].pData = nullptr; 
-}
+  //cleaning data[0]
+  data[0].id = "";
+  data[0].key = 0;
+  data[0].pData = nullptr;
+};
 
 
-void heap::percolateDown(int posCur) { 
-  node temp = data[posCur];
-  int child;
-  //github copilot help on for condition
-  for (;posCur * 2 <= current_size; posCur = child) {
-        child = posCur * 2;
-        
-        if (child != current_size && data[child + 1].key < data[child].key) {
-            child++;
+void heap::percolateDown(int posCur) {
+    for (int pos = 2 * posCur; pos <= current_size; pos = 2 * pos) {
+        if (pos <= current_size - 1 && data[pos].key > data[pos + 1].key) {
+            pos++;
         }
-        
-        if (data[child].key < temp.key) {
-            data[posCur] = data[child];
+        if (data[posCur].key > data[pos].key) {
+            heap::node temp = data[posCur];
+            data[posCur] = data[pos];
+            data[pos] = temp;
             mapping.setPointer(data[posCur].id, &data[posCur]);
+            mapping.setPointer(data[pos].id, &data[pos]);
+            posCur = pos;
         } else {
             break;
         }
     }
-    
-    data[posCur] = temp;
-    mapping.setPointer(data[posCur].id, &data[posCur]);
-    data[current_size] = node();
 }
+
 
 int heap::getPos(heap::node * pn) {
   int pos = pn - &data[0];

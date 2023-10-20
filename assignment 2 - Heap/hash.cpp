@@ -102,6 +102,7 @@ bool hashTable::remove(const std::string &key)
     if (pos != -1)
     {
         data[pos].isDeleted = true;
+        data[pos].isOccupied = false;
         return true;
     }
     return false;
