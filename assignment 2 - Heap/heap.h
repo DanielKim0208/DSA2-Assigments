@@ -29,7 +29,7 @@ public:
   //   2 if a node with the given id already exists (but the heap
   //     is not filled to capacity)
   //
-  int insert(const std::string &id, int key, void *pv);
+  int insert(const std::string &id, int key, void *pv = nullptr);
 
   //
   // setKey - set the key of the specified node to the specified value
