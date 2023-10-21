@@ -1,6 +1,7 @@
 //---IMPORTANT------//
 //Daniel Kim -assignment 2 
 //I have gotten nontrivial help from Taseen Jahan
+//I have used chatGPT and githut copilot for help ; locations marked
 //Where I have gotten help is marked with comment
 
 //a constructor that accepts an integer representing the capacity of the binary heap; 
@@ -44,7 +45,7 @@ using namespace std;
   // insert - Inserts a new node into the binary heap
   // Inserts a node with the specified id string, key,
   // and optionally a pointer.
-  // While I am inserting the key, I am not seeing why it's used as of right now[erase comment if I do see it]
+  // While I am inserting the pointer, I am not seeing why it's used as of right now[erase comment if I do see it]
   //They key is used to
   // determine the final position of the new node.
   //
@@ -55,16 +56,17 @@ using namespace std;
   //     is not filled to capacity)
   //
   int heap::insert(const std::string &id, int key, void *pv ){
-    if (capacity == current_size){ 
-        return 1;
-    }
-    else if (mapping.contains(id)==true && capacity != current_size){
-        return 2;
-    }else{
+    if (capacity <= current_size){ return 1;}
+    else if (mapping.contains(id)==true && capacity != current_size){return 2;}
+    else{
         int new_position = current_size +1; 
         data[new_position].id = id; 
         data[new_position].key = key;
+        //handling *pv(useheap retval line 61 does not use pointer)
+        if(pv == nullptr){data[new_position].pData = nullptr;}
+        else{data[new_position].pData = pv;}
         data[new_position].pData = pv;
+        mapping.insert(data[new_position].id, &data[new_position]);
         percolateUp(new_position);
         current_size = new_position; 
         new_position = 0;
@@ -84,16 +86,17 @@ using namespace std;
   //
   int heap::setKey(const std::string &id, int key){
     // Get the node's position based on the 'id' using 'getPos'.
-      int pos = getPos((node *)mapping.getPointer(id));
-    if(mapping.contains(id) == false){ 
+      bool b;
+      int pos = getPos((node *)mapping.getPointer(id, & b));
+    if(b == false){ 
       return 1; 
     }
     else{ 
       data[pos].key = key; 
       percolateUp(pos); 
       percolateDown(pos); 
+      return 0;
     }
-
   }
 
   //
@@ -110,26 +113,21 @@ using namespace std;
   //   1 if the heap is empty
   //
   // Textbook fig 6.12 referenced
-  int heap::deleteMin(std::string *pId, int *pKey, void *ppData){
-    //error handling 
-    if(current_size == 0){ 
-        return 1;
-    }
+int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
+if (current_size == 0) {return 1;}
+if (pId != nullptr) {*pId = data[1].id;}
+if (pKey != nullptr) {*pKey = data[1].key;}
+if (ppData != nullptr) {*(static_cast<void **>(ppData)) = data[1].pData;}
 
-    //Since I am using a min-heap tree, I need to delete the highest node(first) and percolate down. 
-    else{
-        if (pId != nullptr) {
-      * pId = data[1].id;
-    }
-    if (pKey != nullptr) {
-      * pKey = data[1].key;
-    }
-    if (ppData != nullptr){
-    *(static_cast<void **> (ppData)) = data[1].pData;
-    }
-    return 0; 
-  }
-  }
+mapping.remove(data[1].id);
+data[1] = data[current_size];
+mapping.setPointer(data[1].id, &data[1]);
+data[current_size] = heap::node();
+current_size--;
+percolateDown(1);
+return 0;
+}
+
 
   //
   // remove - delete the node with the specified id from the binary heap
@@ -141,13 +139,12 @@ using namespace std;
   //   0 on success
   //   1 if a node with the given id does not exist
   //
-  int heap::remove(const std::string &id, int *pKey = nullptr, void *ppData = nullptr){
+  int heap::remove(const std::string &id, int *pKey, void *ppData){
     //error handling 
     // Get the node's position based on the 'id' using 'getPos'.
-    int pos = getPos((node *)mapping.getPointer(id));
-    if (mapping.contains(id) == false){ 
-      return 1; 
-    }
+    bool b;
+    int pos = getPos((node *)mapping.getPointer(id, & b));
+    if (b == false){return 1;}
 
     //pKey - ppData handling 
     if(pKey != nullptr){ *pKey = data[pos].key;} 
@@ -156,62 +153,61 @@ using namespace std;
     //I have gotten nontrivial help from Taseen Jahan below : 
     //Delete 
     mapping.remove(data[pos].id); 
-    data[pos] = data[(current_size-1)]; 
-    int oldKey, newKey; 
-    oldKey = data[pos].key; 
-    newKey = data[current_size].key; 
-    return 0;    
+    data[pos] = data[current_size];
+    mapping.setPointer(data[pos].id, &data[pos]);
+    data[current_size] = heap::node();
+    if (data[current_size].key < data[pos].key) {percolateUp(pos);}
+    else {percolateDown(pos);}
+    return 0;
     }
 
 
 ///////------------Private functions----------//
 ///////------standard percs&getPos() given----//
 
+
 //Percolate up function 
 //I am using min heap tree
 void heap::percolateUp(int posCur) {
-  //Storing the new node information 
-  data[0] = data[posCur]; //Since we're not going to be using the 0th
 
-//while children smaller than the parent
-  while(data[posCur].key < data[(posCur/2)].key){ 
-    data[posCur] = data[(posCur/2)]; 
+  //using data[0] as temporary storage
+  while (data[posCur].key < data[posCur / 2].key && posCur > 1) {
+    
+    //swapping
+    data[0] = data[posCur];
+    data[posCur] = data[posCur / 2];
+    data[posCur / 2] = data[0];
 
-    //FIGURE OUT HASH.CPP SETPOINTER
-    mapping.setPointer(data[posCur].id, &data[posCur]);    
-  
-    posCur /= 2;    
-    //swap! 
+    mapping.setPointer(data[posCur].id, &data[posCur]);
+    mapping.setPointer(data[posCur / 2].id, &data[posCur / 2]);
+    posCur = posCur / 2;
   }
 
-  data[posCur] = data[0]; 
-  mapping.setPointer(data[posCur].id, &data[posCur]);
-  data[0].key = -1; //This assumes no given key will be negative 
-  data[0].id = ""; 
-  data[0].pData = nullptr; 
+  //cleaning data[0]
+  data[0].id = "";
+  data[0].key = 0;
+  data[0].pData = nullptr;
+};
+
+
+void heap::percolateDown(int posCur) {
+    for (int pos = 2 * posCur; pos <= current_size; pos = 2 * pos) {
+        if (pos <= current_size - 1 && data[pos].key > data[pos + 1].key) {
+            pos++;
+        }
+        if (data[posCur].key > data[pos].key) {
+            heap::node temp = data[posCur];
+            data[posCur] = data[pos];
+            data[pos] = temp;
+            mapping.setPointer(data[posCur].id, &data[posCur]);
+            mapping.setPointer(data[pos].id, &data[pos]);
+            posCur = pos;
+        } else {
+            break;
+        }
+    }
 }
 
-
-void heap::percolateDown(int posCur){
-  
-  //Storing the new node information 
-  data[0] = data[posCur]; //Since we're not going to be using the 0th
-
-//while children smaller than the parent
-  while(data[posCur].key > data[(posCur/2)].key){ 
-    data[posCur] = data[(posCur/2)]; 
-    mapping.setPointer(data[posCur].id, &data[posCur]);    
-    posCur /= 2;    
-    //swap! 
-  }
-
-  data[posCur] = data[0]; 
-  mapping.setPointer(data[posCur].id, &data[posCur]);
-  data[0].key = -1; //This assumes no given key will be negative 
-  data[0].id = ""; 
-  data[0].pData = nullptr; 
-
-}
 
 int heap::getPos(heap::node * pn) {
   int pos = pn - &data[0];
