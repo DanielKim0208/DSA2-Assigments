@@ -90,12 +90,11 @@ void *hashTable::getPointer(const std::string &key, bool *b)
   // Returns 0 on success,
   // 1 if the key does not exist in the hash table.
   int hashTable::setPointer(const std::string & key, void * pv) {
-    int pos = findPos(key);
-    if (pos < 0){ 
+    if (findPos(key) < 0){ 
         return 1;
     }
-    if(pos >= 1){ 
-        data[pos].pv = pv; 
+    if(findPos(key) >= 1){ 
+        data[findPos(key)].pv = pv; 
     }
 }
 
@@ -104,18 +103,15 @@ void *hashTable::getPointer(const std::string &key, bool *b)
   // false if the specified key is not in the hash table.
 bool hashTable::remove(const std::string &key)
 {
-   int pos = findPos(key);
-    if (pos < 0){ 
+    if (findPos(key) < 0){ 
         return false;
     }
-    if(pos >= 1){ 
-        data[pos].isDeleted = true; 
-        data[pos].isOccupied = false;
+    if(findPos(key) >= 1){ 
+        data[findPos(key)].isDeleted = true; 
+        data[findPos(key)].isOccupied = false;
         return true;
     }
 }
-
-
 //--------------------END OF ADDED FOR 2ND ASSIGNMENT---------------------------------------///
 
 

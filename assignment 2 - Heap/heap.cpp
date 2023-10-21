@@ -1,29 +1,9 @@
 //---IMPORTANT------//
 //Daniel Kim -assignment 2 
 //I have gotten nontrivial help from Taseen Jahan
-//I have used chatGPT and githut copilot for help ; locations marked
 //Where I have gotten help is marked with comment
-
-//a constructor that accepts an integer representing the capacity of the binary heap; 
-//a public member function, insert, used to insert a new item into the heap; a public member function
-//deleteMin, that removes and returns the item with the lowest key from the heap; a public member function, 
-//setKey, providing both increaseKey and decreaseKey functionality; and a public member function, 
-//remove, that allows the programmer to delete an item with a specified id from the heap. 
-
-
-//ALL PROGRAM O(logN)!
-
-//a hash table in which each hash entry includes a pointer to the associated node 
-
-//My heap class contains four private data members. 
-//Two are simple integers representing the capacity and the current size of the heap. 
-//The third is a vector of node objects containing the actual data of the heap; 
-//each node contains a string id, an integer key, and a pointer to void that can point to anything. (I made "node" a private nested class within the heap class.) 
-//The fourth private data member is a hash table. Since the heap constructor is provided with the maximum size of the heap
-//you may construct the hash table to be large enough such that there is a small likelihood of a rehash
-// but that is up to you (I'll discuss how to do that in class). 
-//Note that since items get removed from the heap, but only lazily deleted from the hash table, it is still possible that a rehash of the hash table will be necessary.
-
+//I have used chatGPT and github copilot for help ; locations marked
+//I have also used the textbook for help; locations marked
 #include "heap.h"
 #include <iostream>
 #include <string>
@@ -86,11 +66,9 @@ using namespace std;
   //
   int heap::setKey(const std::string &id, int key){
     // Get the node's position based on the 'id' using 'getPos'.
-      bool b;
-      int pos = getPos((node *)mapping.getPointer(id, & b));
-    if(b == false){ 
-      return 1; 
-    }
+    bool b;
+    int pos = getPos((node *)mapping.getPointer(id, & b));
+    if(b == false){ return 1;}
     else{ 
       data[pos].key = key; 
       percolateUp(pos); 
@@ -114,18 +92,18 @@ using namespace std;
   //
   // Textbook fig 6.12 referenced
 int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
-if (current_size == 0) {return 1;}
-if (pId != nullptr) {*pId = data[1].id;}
-if (pKey != nullptr) {*pKey = data[1].key;}
-if (ppData != nullptr) {*(static_cast<void **>(ppData)) = data[1].pData;}
+  if (current_size == 0) {return 1;}
+  if (pId != nullptr) {*pId = data[1].id;}
+  if (pKey != nullptr) {*pKey = data[1].key;}
+  if (ppData != nullptr) {*reinterpret_cast<void**>(ppData) = data[1].pData;}
 
-mapping.remove(data[1].id);
-data[1] = data[current_size];
-mapping.setPointer(data[1].id, &data[1]);
-data[current_size] = heap::node();
-current_size--;
-percolateDown(1);
-return 0;
+  mapping.remove(data[1].id);
+  data[1] = data[current_size];
+  mapping.setPointer(data[1].id, &data[1]);
+  mapping.remove(data[current_size].id);
+  current_size--;
+  percolateDown(1);
+  return 0;
 }
 
 
@@ -148,7 +126,7 @@ return 0;
 
     //pKey - ppData handling 
     if(pKey != nullptr){ *pKey = data[pos].key;} 
-    if(ppData != nullptr){*(static_cast < void ** > (ppData)) = data[pos].pData;}
+    if(ppData != nullptr){*(reinterpret_cast < void ** > (ppData)) = data[pos].pData;}
     
     //I have gotten nontrivial help from Taseen Jahan below : 
     //Delete 
@@ -170,9 +148,9 @@ return 0;
 //I am using min heap tree
 void heap::percolateUp(int posCur) {
 
-  //using data[0] as temporary storage
   while (data[posCur].key < data[posCur / 2].key && posCur > 1) {
     
+    //using data[0] as temporary storage
     //swapping
     data[0] = data[posCur];
     data[posCur] = data[posCur / 2];
@@ -196,9 +174,9 @@ void heap::percolateDown(int posCur) {
             pos++;
         }
         if (data[posCur].key > data[pos].key) {
-            heap::node temp = data[posCur];
+            data[0] = data[posCur];
             data[posCur] = data[pos];
-            data[pos] = temp;
+            data[pos] = data[0];
             mapping.setPointer(data[posCur].id, &data[posCur]);
             mapping.setPointer(data[pos].id, &data[pos]);
             posCur = pos;
