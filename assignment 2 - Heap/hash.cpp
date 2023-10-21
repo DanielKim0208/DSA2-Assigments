@@ -71,40 +71,47 @@ bool hashTable::contains(const std::string &key){
 void *hashTable::getPointer(const std::string &key, bool *b = nullptr)
 {
     int pos = findPos(key);
-    if(pos == -1){ 
+    //findPos() returns -1 when its not found
+    if (pos == -1) { 
+        if (b != nullptr) {
+            *b = false; 
+        }
         return nullptr;
-        *b = false;
-    }
-    else{ 
-        *b = true;
-        return data[findPos(key)].pv;
+    } else {
+        if (b != nullptr) {
+            *b = true; 
+        }
+        return data[pos].pv; 
     }
 }
+
 
   // Set the pointer associated with the specified key.
   // Returns 0 on success,
   // 1 if the key does not exist in the hash table.
   int hashTable::setPointer(const std::string & key, void * pv) {
-  if (contains(key) == false) {
-    return 1;
-  } else {
-    data[findPos(key)].pv = pv;
-    return 0;
-  }
-};
+    int pos = findPos(key);
+    if (pos < 0){ 
+        return 1;
+    }
+    if(pos >= 1){ 
+        data[pos].pv = pv; 
+    }
+}
 
   // Delete the item with the specified key.
   // Returns true on success,
   // false if the specified key is not in the hash table.
 bool hashTable::remove(const std::string &key)
 {
-    int pos = findPos(key);
-    if (pos != -1)
-    {
-        data[pos].isDeleted = true;
+   int pos = findPos(key);
+    if (pos < 0){ 
+        return false;
+    }
+    if(pos >= 1){ 
+        data[pos].isDeleted = true; 
         return true;
     }
-    return false;
 }
 
 

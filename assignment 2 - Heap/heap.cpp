@@ -176,41 +176,55 @@ void heap::percolateUp(int posCur) {
 //while children smaller than the parent
   while(data[posCur].key < data[(posCur/2)].key){ 
     data[posCur] = data[(posCur/2)]; 
-
-    //FIGURE OUT HASH.CPP SETPOINTER
+  //FIGURE OUT HASH.CPP SETPOINTER
+  // Set the pointer associated with the specified key.
+  // Returns 0 on success,
+  // 1 if the key does not exist in the hash table.
+  //int hashTable::setPointer(const std::string & key, void * pv) {
     mapping.setPointer(data[posCur].id, &data[posCur]);    
-  
     posCur /= 2;    
-    //swap! 
   }
-
   data[posCur] = data[0]; 
   mapping.setPointer(data[posCur].id, &data[posCur]);
+
+  //Reset data[0]
   data[0].key = -1; //This assumes no given key will be negative 
   data[0].id = ""; 
   data[0].pData = nullptr; 
 }
 
 
-void heap::percolateDown(int posCur){
-  
-  //Storing the new node information 
-  data[0] = data[posCur]; //Since we're not going to be using the 0th
+void heap::percolateDown(int posCur) {
+    // Storing the new node information
+    data[0] = data[posCur]; // Since we're not going to be using the 0th position
 
-//while children smaller than the parent
-  while(data[posCur].key > data[(posCur/2)].key){ 
-    data[posCur] = data[(posCur/2)]; 
-    mapping.setPointer(data[posCur].id, &data[posCur]);    
-    posCur /= 2;    
-    //swap! 
-  }
+    while (2 * posCur <= current_size) {
+        int child = 2 * posCur; // Left child
 
-  data[posCur] = data[0]; 
-  mapping.setPointer(data[posCur].id, &data[posCur]);
-  data[0].key = -1; //This assumes no given key will be negative 
-  data[0].id = ""; 
-  data[0].pData = nullptr; 
+        // Compare with the right child if it exists and is smaller
+        if (child < current_size && data[child].key > data[child + 1].key) {
+            child++;
+        }
 
+        // If the current element is greater than its smallest child, swap them
+        if (data[posCur].key > data[child].key) {
+            data[posCur] = data[child];
+            mapping.setPointer(data[posCur].id, &data[posCur]);
+        } else {
+            break; // Heap property is satisfied
+        }
+
+        posCur = child; // Move down to the child
+    }
+
+    // Restore the element at its final position
+    data[posCur] = data[0];
+    mapping.setPointer(data[posCur].id, &data[posCur]);
+
+    // Reset data[0]
+    data[0].key = -1; // This assumes no given key will be negative
+    data[0].id = "";
+    data[0].pData = nullptr;
 }
 
 int heap::getPos(heap::node * pn) {
