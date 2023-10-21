@@ -53,10 +53,10 @@ class hashTable {
   //      nullptr if no pointer was provided to insert.
   class hashItem {
   public:
-    std::string key {""};
-    bool isOccupied {false};
-    bool isDeleted {false};
-    void *pv {nullptr};
+    std::string key;
+    bool isOccupied;
+    bool isDeleted;
+    void *pv;
 
     hashItem() = default;
   };

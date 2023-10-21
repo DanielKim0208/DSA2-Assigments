@@ -68,7 +68,7 @@ bool hashTable::contains(const std::string &key){
   // If an optional pointer to a bool is provided,
   // set the bool to true if the key is in the hash table,
   // and set the bool to false otherwise.
-void *hashTable::getPointer(const std::string &key, bool *b = nullptr)
+void *hashTable::getPointer(const std::string &key, bool *b)
 {
     int pos = findPos(key);
     //findPos() returns -1 when its not found
@@ -110,6 +110,7 @@ bool hashTable::remove(const std::string &key)
     }
     if(pos >= 1){ 
         data[pos].isDeleted = true; 
+        data[pos].isOccupied = false;
         return true;
     }
 }

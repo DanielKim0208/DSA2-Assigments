@@ -165,7 +165,7 @@ int main(){
 	dict_end = steady_clock::now();
 
     //endTime - startTime for time taken 
-	duration<double> timeDiff_dict = duration_cast<duration<double>>(dict_end - dict_start);
+    duration<double> timeDiff_dict = duration_cast<duration<double> >(dict_end - dict_start);
 	cout << "Dictionary load Time(s): " << timeDiff_dict.count() << endl;
     //End of nontrivial chatGPT help 
       //dictTest(testFile,dict); 
@@ -177,6 +177,6 @@ int main(){
     check_start = steady_clock::now();  
     spellcheck(inputFile,outputFile,dict);
     check_end = steady_clock::now();
-    duration<double> timeDiff_check = duration_cast<duration<double>>(check_end - check_start);
+    duration<double> timeDiff_check = duration_cast<duration<double> >(check_end - check_start);
     cout << "Spell check process Time(s): " << timeDiff_check.count() << endl;
 }
