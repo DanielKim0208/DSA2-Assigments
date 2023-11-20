@@ -1,5 +1,5 @@
 //---IMPORTANT------//
-//Daniel Kim -assignment 2 
+//Daniel Kim - modified for assignment 3 
 //I have gotten nontrivial help from Taseen Jahan
 //Where I have gotten help is marked with comment
 //I have used chatGPT and github copilot for help ; locations marked
@@ -19,7 +19,7 @@ using namespace std;
         data.resize(capacity+1);
         heap::capacity = capacity;
         current_size = 0;
-  }
+  };
 
   //
   // insert - Inserts a new node into the binary heap
@@ -43,13 +43,10 @@ using namespace std;
         data[new_position].id = id; 
         data[new_position].key = key;
         //handling *pv(useheap retval line 61 does not use pointer)
-        if(pv == nullptr){data[new_position].pData = nullptr;}
-        else{data[new_position].pData = pv;}
         data[new_position].pData = pv;
         mapping.insert(data[new_position].id, &data[new_position]);
         percolateUp(new_position);
         current_size = new_position; 
-        new_position = 0;
         return 0;
     }
 }
@@ -91,20 +88,24 @@ using namespace std;
   //   1 if the heap is empty
   //
   // Textbook fig 6.12 referenced
+
+  //FOR ASSIGNMENT 3, I HAVE IDENTIFIED THIS AS THE PROBLEM
+  //I HAVE GOTTEN HELP FROM TASEEN JAHAN
 int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
   if (current_size == 0) {return 1;}
   if (pId != nullptr) {*pId = data[1].id;}
   if (pKey != nullptr) {*pKey = data[1].key;}
-  if (ppData != nullptr) {*reinterpret_cast<void**>(ppData) = data[1].pData;}
+  if (ppData != nullptr) {
+    *reinterpret_cast<void**>(ppData) = data[1].pData;}
 
   mapping.remove(data[1].id);
   data[1] = data[current_size];
   mapping.setPointer(data[1].id, &data[1]);
-  mapping.remove(data[current_size].id);
   current_size--;
   percolateDown(1);
   return 0;
 }
+
 
 
   //
@@ -112,7 +113,7 @@ int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
   //
   // If pKey is supplied, write to that address the key of the node being deleted. 
   // If ppData is supplied, write to that address the associated void pointer.
-  //
+
   // Returns:
   //   0 on success
   //   1 if a node with the given id does not exist
@@ -122,20 +123,30 @@ int heap::deleteMin(std::string *pId, int *pKey, void *ppData) {
     // Get the node's position based on the 'id' using 'getPos'.
     bool b;
     int pos = getPos((node *)mapping.getPointer(id, & b));
-    if (b == false){return 1;}
+    if (b == false){
+      return 1;
+      }
 
     //pKey - ppData handling 
-    if(pKey != nullptr){ *pKey = data[pos].key;} 
-    if(ppData != nullptr){*(reinterpret_cast < void ** > (ppData)) = data[pos].pData;}
+    if(pKey != nullptr){ 
+      *pKey = data[pos].key;
+      } 
+    if(ppData != nullptr){
+      *(reinterpret_cast < void ** > (ppData)) = data[pos].pData;
+      }
     
     //I have gotten nontrivial help from Taseen Jahan below : 
     //Delete 
+    int oldKey = data[pos].key;
     mapping.remove(data[pos].id); 
     data[pos] = data[current_size];
     mapping.setPointer(data[pos].id, &data[pos]);
     data[current_size] = heap::node();
-    if (data[current_size].key < data[pos].key) {percolateUp(pos);}
-    else {percolateDown(pos);}
+    if (oldKey < data[current_size].key) {
+        percolateUp(pos);
+    } else {
+        percolateDown(pos);
+    }
     return 0;
 }
 

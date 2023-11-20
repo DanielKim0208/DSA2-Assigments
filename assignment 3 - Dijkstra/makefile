@@ -1,11 +1,8 @@
-interface.exe: interface.o graph.o heap.o hash.o
-	g++ -o interface.exe interface.o graph.o heap.o hash.o
+dijkstra.exe: dijkstra.o heap.o hash.o
+	g++ -o  dijkstra.exe dijkstra.o heap.o hash.o
 
-interface.o: interface.cpp
-	g++ -c interface.cpp
-    
-graph.o: graph.cpp graph.h heap.h
-	g++ -c graph.cpp
+dijkstra.o: dijkstra.cpp dijkstra.h heap.h
+	g++ -c dijkstra.cpp
 
 heap.o: heap.cpp heap.h
 	g++ -c heap.cpp

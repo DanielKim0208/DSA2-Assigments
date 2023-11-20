@@ -19,35 +19,33 @@ hashTable::hashTable(int size){
 
 //Using the already provided hashItem by the hash.cpp, 
 int hashTable::insert(const std::string &key, void *pv){ 
-int pos = hash(key); 
+    int pos = hash(key);
 
-// Search for the location of a key in the data structure
-while (true) {
-    // Check if the current position is occupied and if its key is equal to the target key
-    if (!data[pos].isOccupied || data[pos].key == key) {
-        break;  // Exit the loop if the key is found or an unoccupied spot is encountered
-    }
+    if (filled >= capacity/2){ 
+        if (rehash() == false){ 
+            return 2;
+        }
+    
+    while((data[pos].isOccupied || data[pos].isDeleted) && (data[pos].key != key)){
+         pos++; 
+         pos %= capacity; 
+         }
+    
+    if ( (data[pos].key == key) && (data[pos].isDeleted == false) ) { 
+        return 1;
+        }
+        }
 
-    // If the current position is occupied and doesn't match the key, move to the next position
-    pos = (pos + 1) % capacity;
+    data[pos].key = key;
+    data[pos].pv = pv;
+    data[pos].isOccupied = true;
+    data[pos].isDeleted = false;
+    filled++;
+    return 0;
 }
 
-// At this point, either the key has been found or an unoccupied spot has been reached
-if (data[pos].isOccupied && data[pos].key == key) {
-    // Key found at position 'pos'
-    return 1;
-} else if((filled/capacity)>0.5){ 
-    if (rehash()==false){
-        return 2;
-    }
-}
 
-data[pos].key = key; 
-data[pos].isOccupied = true; 
-data[pos].isDeleted = false;
-filled++;
-return 0;
-}
+
 
 
   // Check if the specified key is in the hash table.
@@ -93,7 +91,7 @@ void *hashTable::getPointer(const std::string &key, bool *b)
     if (findPos(key) < 0){ 
         return 1;
     }
-    if(findPos(key) >= 1){ 
+    else{ 
         data[findPos(key)].pv = pv; 
     }
 }
@@ -106,9 +104,8 @@ bool hashTable::remove(const std::string &key)
     if (findPos(key) < 0){ 
         return false;
     }
-    if(findPos(key) >= 1){ 
+    else{ 
         data[findPos(key)].isDeleted = true; 
-        data[findPos(key)].isOccupied = false;
         return true;
     }
 }
@@ -137,8 +134,9 @@ int hashTable::findPos(const std::string &key){
     //If reach the end, start from the beginning 
     //If can't find  
     while (data[pos].isOccupied){
-        if(data[pos].key == key){
+        if(data[pos].key == key && !data[pos].isDeleted){
             return pos;
+            break;
         }
         ++pos;
         if(pos == capacity){ 
@@ -148,28 +146,38 @@ int hashTable::findPos(const std::string &key){
     return -1; 
 }
 
-//borrowed from textbook fig 5.22, but modified a little
-//(Textbook example was on the quadratic probing)
-bool hashTable:: rehash(){ 
-
+bool hashTable::rehash() {
     int newSize = getPrime(capacity);
-    vector<hashItem>olddata;
+    vector<hashItem> olddata;
     data.swap(olddata);
-    
-    try{data.resize(newSize);} 
-    catch (std::bad_alloc){
+
+    try {
+        data.resize(newSize);
+    } catch (std::bad_alloc) {
         return false;
     }
-    capacity =  newSize; 
-    filled = 0; 
 
-    for (auto & item : olddata){
-        if((item.isOccupied == true)){ 
+    capacity = newSize;
+    filled = 0;
+
+    for (auto &item : olddata) {
+        if (item.isOccupied == true && !item.isDeleted) {
+            // Insert only if the old item was occupied and not marked as deleted
             insert(item.key);
-        } 
-        return true;
-    }    
+        }
+    }
+
+    // Move the check for rehashing to the end
+    if ((static_cast<double>(filled) / capacity) > 0.5) {
+        if (rehash() == false) {
+            return false;
+        }
+    }
+
+    return true;
 }
+
+
 
 //give prime numbers based on the input table size
 unsigned int hashTable::getPrime(int size) {

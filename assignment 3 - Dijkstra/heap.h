@@ -58,7 +58,6 @@ public:
   //   1 if the heap is empty
   //
   int deleteMin(std::string *pId = nullptr, int *pKey = nullptr, void *ppData = nullptr);
-
   //
   // remove - delete the node with the specified id from the binary heap
   //
