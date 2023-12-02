@@ -6,4 +6,5 @@ Mergechecker.o: Mergechecker.cpp
 
 clean:
 	rm -f *.exe *.o *.stackdump *~
+	find . -name '*.txt' ! -name 'input.txt' -exec rm {} \;
 

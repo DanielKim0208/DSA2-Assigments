@@ -1,74 +1,72 @@
+//DANIEL KIM - FINAL VER
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm>
 #include <cstring>
 #include <cctype>
+#include <bitset>
 using namespace std;
 
-//MergeArray is a global variable to prevent stack overflow
-int MergeArray[1000][1000] = {0};
+//static global array
+int MergeArray[1000][1000];
 
-//MergeChecker function 
-//returns 0 when found out to be not a merge 
-//returns the merge string if it is a merge 
 string MergeChecker(const string& str1, const string& str2, string& merge) {
     int a = str1.length();
     int b = str2.length();
     int c = merge.length();
 
-    //Length of merge should be equal to the sum of the lengths of str1 and str2
+    // Length of merge should be equal to the sum of the lengths of str1 and str2
     if (a + b != c) {
         return "0";
     }
 
-    //If both strings are empty, then the merge is empty
+    // If both strings are empty, then the merge is empty
     if (a == 0 && b == 0) {
         return "";
     }
 
-    //Bottom-up dynamic programming approach 
+
+
+    // Bottom-up dynamic programming approach
+    //Iterate as 2D array 
+    //set as 1 if the merge string matches str1
+    //set as 2 if the merge string matches str2
     for (int i = 0; i <= a; ++i) {
         for (int j = 0; j <= b; ++j) {
 
             if (i == 0 && j == 0) {
-                MergeArray[i][j] = 0;
-
-                    // If characters from both str1 and str2 match the current character in merge
-                    // and the diagonal (top-left) cell is 1, set MergeArray[i][j] to 1.
-            } else if (i > 0 && j > 0 && str1[i - 1] == merge[i + j - 1] && str2[j - 1] == merge[i + j - 1] && MergeArray[i - 1][j] == 1) {
                 MergeArray[i][j] = 1;
+            }
 
-                    // If the character from str1 matches the current character in merge
-                    // and the cell above is 1, set MergeArray[i][j] to 1.
-            } else if (i > 0 && str1[i - 1] == merge[i + j - 1] && MergeArray[i - 1][j] == 1) {
+             if (i > 0 && str1[i - 1] == merge[i + j - 1] && MergeArray[i - 1][j] >= 1) {
                 MergeArray[i][j] = 1;
-
-                    // If the character from str2 matches the current character in merge
-                    // and the cell to the left is 1, set MergeArray[i][j] to 3.
-            } else if (j > 0 && str2[j - 1] == merge[i + j - 1] && MergeArray[i][j - 1] == 1) {
-                MergeArray[i][j] = 1;
+            }if (j > 0 && str2[j - 1] == merge[i + j - 1] && MergeArray[i][j - 1] >= 1) {
+                MergeArray[i][j] = 2;
             }
         }
     }
-
-    // Check if the last cell is equal to 1, indicating a valid merge
-    if (MergeArray[a][b] == 1) { 
-        result = ""; 
-        for (int i = 0, i < a, i++){ 
-            for (int j = 0, j < b, j++){ 
-                if (MergeArray[i][j] == 1){ 
- 
-                } 
+    
+//Verify if the merge string is a valid merge of str1 and str2 by checking the [a][b] position of the array 
+//While I don't technically need c and d as independent variables, I wanted to keep them as such for safety
+    if (MergeArray[a][b] >= 1) {
+        int c = a;
+        int d = b;
+//backtrack from the end of the merge string to the beginning
+        while (c > 0 && d >= 0) {
+            if (MergeArray[c][d] == 1) {
+                merge[c + d - 1] = toupper(merge[c + d - 1]);
+                c--;
+            } else{
+                d--;
             }
-     
         }
-        
+        return merge;
     } else {
         return "0";
     }
 }
-
 
 
 int main() {
@@ -90,9 +88,10 @@ int main() {
     }
 
     while (getline(inputfile, str1) && getline(inputfile, str2) && getline(inputfile, mergeLine)) {
-
-    string output = MergeChecker(str1, str2, mergeLine); 
     memset(MergeArray, 0, sizeof(MergeArray));
+    
+    string output = MergeChecker(str1, str2, mergeLine); 
+    
     
     if (output == "0") { 
         outputfile << "*** NOT A MERGE ***\n";
